@@ -1,0 +1,13 @@
+# Ignore dataset files
+ptbxl-data/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore model weights (optional)
+models/*.h5
+
+# Ignore virtual environments (if any)
+venv/
+.env/

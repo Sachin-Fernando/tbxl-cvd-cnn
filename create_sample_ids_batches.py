@@ -26,7 +26,7 @@ df['diagnostic_superclass'] = df['scp_codes'].apply(aggregate_superclass)
 df = df[df['diagnostic_superclass'].map(lambda x: len(x) > 0)]
 df['diagnostic_superclass'] = df['diagnostic_superclass'].apply(lambda x: x[0])
 
-# Keep only the 3 classes for your dissertation
+# Keep only the 3 classes for dissertation
 df = df[df['diagnostic_superclass'].isin(['NORM', 'MI', 'STTC'])]
 
 print("Total selected samples:", len(df))
@@ -40,7 +40,7 @@ print(df['diagnostic_superclass'].value_counts())
 df_train, df_test = train_test_split(
     df,
     test_size=0.20,
-    stratify=df['diagnostic_superclass'],
+    stratify=df['diagnostic_superclass'], #Same propotion
     random_state=42
 )
 

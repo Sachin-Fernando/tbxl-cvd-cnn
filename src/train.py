@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-from src.extract import load_dataset_from_csv
+from extract import load_dataset_from_csv
 
 # ----------------------------
 # Load one batch
@@ -10,13 +10,14 @@ from src.extract import load_dataset_from_csv
 
 X, y = load_dataset_from_csv(
     csv_path="batches/sample_ids_batch1.csv",
-    base_path="../ptbxl-data/records100/",
+    base_path="../ptbxl-data/",
     augment=True,
-    lead=0
+    leads=[0]
 )
 
 print("✅ Data loaded.")
-print("Shape of X:", X.shape)
+print("X shape:", X.shape)
+print("Single signal shape:", X[0].shape)
 print("First 5 labels:", y[:5])
 
 # ----------------------------
@@ -33,7 +34,8 @@ y_encoded = le.fit_transform(y)
 # ----------------------------
 
 model = keras.Sequential([
-    layers.Conv1D(16, kernel_size=5, activation='relu', input_shape=(1000, 1)),
+    keras.Input(shape=(1000, 1)),
+    layers.Conv1D(16, kernel_size=5, activation='relu'),
     layers.MaxPooling1D(pool_size=2),
     layers.Conv1D(32, kernel_size=5, activation='relu'),
     layers.MaxPooling1D(pool_size=2),
@@ -41,6 +43,7 @@ model = keras.Sequential([
     layers.Dense(64, activation='relu'),
     layers.Dense(len(le.classes_), activation='softmax')
 ])
+
 
 model.compile(
     optimizer='adam',

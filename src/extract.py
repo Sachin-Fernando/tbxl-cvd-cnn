@@ -18,7 +18,8 @@ def add_noise(signal, noise_level=0.05):
     """
     Add Gaussian noise to the signal for augmentation.
     """
-    return signal + noise_level * np.random.randn(len(signal))
+    return signal + noise_level * np.random.randn(*signal.shape)
+
 
 def load_dataset_from_csv(
     csv_path="sample_ids.csv",
@@ -26,9 +27,11 @@ def load_dataset_from_csv(
     augment=False,
     leads=[0]
 ):
-    """
-    Load multiple ECG signals and labels based on a CSV file.
-    """
+    import pandas as pd
+    import numpy as np
+    import wfdb
+    import os
+
     df = pd.read_csv(csv_path)
     X, y = [], []
 
@@ -36,16 +39,24 @@ def load_dataset_from_csv(
         path = os.path.join(base_path, row['filename_lr'])
         record = wfdb.rdrecord(path)
 
-        # Load multiple leads
-        if len(leads) > 1:
-            signal = record.p_signal[:, leads]
-        else:
-            signal = record.p_signal[:, leads[0]]
-            if len(signal.shape) == 1:
-                signal = signal[:, np.newaxis]
+        # FIX: guarantee leads is a list
+        if isinstance(leads, int):
+            leads = [leads]
 
-        # Clip or pad signal
+        if len(leads) == 1:
+            # extract single lead
+            signal = record.p_signal[:, leads[0]]
+            # force shape (samples, 1)
+            signal = signal[:, np.newaxis]
+        else:
+            # extract multiple leads
+            signal = record.p_signal[:, leads]
+
+        # Clip or pad
         signal = signal[:1000, :]
+        if signal.shape[0] < 1000:
+            signal = np.pad(signal, ((0, 1000 - signal.shape[0]), (0, 0)))
+
         if augment:
             signal = add_noise(signal)
 
@@ -55,3 +66,16 @@ def load_dataset_from_csv(
     X = np.array(X)
     y = np.array(y)
     return X, y
+
+
+
+X, y = load_dataset_from_csv(
+    csv_path="batches/sample_ids_batch1.csv",
+    base_path="../ptbxl-data/",
+    augment=True,
+    leads=[0]
+)
+
+print("✅ Data loaded.")
+print("X shape:", X.shape)
+print("Single signal shape:", X[0].shape)

@@ -57,6 +57,12 @@ def load_dataset_from_csv(
         if signal.shape[0] < 1000:
             signal = np.pad(signal, ((0, 1000 - signal.shape[0]), (0, 0)))
 
+        #standardize signal
+        mean = np.mean(signal, axis=0, keepdims=True)
+        std = np.std(signal, axis=0, keepdims=True) + 1e-8
+        signal = (signal - mean) / std
+
+
         if augment:
             signal = add_noise(signal)
 
@@ -69,13 +75,13 @@ def load_dataset_from_csv(
 
 
 
-X, y = load_dataset_from_csv(
-    csv_path="batches/sample_ids_batch1.csv",
-    base_path="../ptbxl-data/",
-    augment=True,
-    leads=[0]
-)
+# X, y = load_dataset_from_csv(
+#     csv_path="batches/sample_ids_batch1.csv",
+#     base_path="../ptbxl-data/",
+#     augment=True,
+#     leads=[0]
+# )
 
-print("✅ Data loaded.")
-print("X shape:", X.shape)
-print("Single signal shape:", X[0].shape)
+# print("✅ Data loaded.")
+# print("X shape:", X.shape)
+# print("Single signal shape:", X[0].shape)

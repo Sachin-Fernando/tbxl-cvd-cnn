@@ -3,6 +3,14 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from extract import load_dataset_from_csv
+from tensorflow.keras.callbacks import EarlyStopping
+
+early_stop = EarlyStopping(
+    monitor='val_loss',
+    patience=3,
+    restore_best_weights=True
+)
+
 
 # ----------------------------
 # Load one batch
@@ -37,12 +45,19 @@ model = keras.Sequential([
     keras.Input(shape=(1000, 1)),
     layers.Conv1D(16, kernel_size=5, activation='relu'),
     layers.MaxPooling1D(pool_size=2),
+    layers.Dropout(0.3),
+
     layers.Conv1D(32, kernel_size=5, activation='relu'),
     layers.MaxPooling1D(pool_size=2),
+    layers.Dropout(0.3),
+
     layers.Flatten(),
     layers.Dense(64, activation='relu'),
-    layers.Dense(len(le.classes_), activation='softmax')
+    layers.Dropout(0.5),
+
+    layers.Dense(3, activation='softmax')
 ])
+
 
 
 model.compile(
@@ -60,14 +75,17 @@ print(model.summary())
 model.fit(
     X,
     y_encoded,
-    epochs=10,
+    epochs=50,
     batch_size=32,
-    validation_split=0.2
+    validation_split=0.2,
+    callbacks=[early_stop]
 )
+
 
 # ----------------------------
 # Save model
 # ----------------------------
 
-model.save("models/lead1_model_v1.h5")
+model.save("models/lead1_model_v1.keras")
+
 print("✅ Model saved!")

@@ -10,31 +10,76 @@ from extract import load_dataset_from_csv
 # Model Definition
 # ----------------------------
 
+# def build_model(n_classes):
+#     model = keras.Sequential([
+#         keras.Input(shape=(1000, 1)),
+#         layers.Conv1D(16, kernel_size=5, activation='relu'),
+#         layers.MaxPooling1D(pool_size=2),
+#         layers.Dropout(0.3),
+
+#         layers.Conv1D(32, kernel_size=5, activation='relu'),
+#         layers.MaxPooling1D(pool_size=2),
+#         layers.Dropout(0.3),
+
+#         layers.Flatten(),
+#         layers.Dense(64, activation='relu'),
+#         layers.Dropout(0.5),
+
+#         layers.Dense(n_classes, activation='softmax')
+#     ])
+
+#     model.compile(
+#         optimizer='adam',
+#         loss='sparse_categorical_crossentropy',
+#         metrics=['accuracy']
+#     )
+
+#     return model
+
+def residual_block(x, filters, kernel_size):
+    shortcut = x
+
+    if x.shape[-1] != filters:
+        shortcut = layers.Conv1D(filters, kernel_size=1, padding='same')(shortcut)
+
+    x = layers.Conv1D(filters, kernel_size, padding='same')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+    x = layers.Conv1D(filters, kernel_size, padding='same')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Add()([shortcut, x])
+    x = layers.Activation('relu')(x)
+    return x
+
+
+
 def build_model(n_classes):
-    model = keras.Sequential([
-        keras.Input(shape=(1000, 1)),
-        layers.Conv1D(16, kernel_size=5, activation='relu'),
-        layers.MaxPooling1D(pool_size=2),
-        layers.Dropout(0.3),
+    inputs = keras.Input(shape=(1000, 1))
 
-        layers.Conv1D(32, kernel_size=5, activation='relu'),
-        layers.MaxPooling1D(pool_size=2),
-        layers.Dropout(0.3),
+    x = layers.Conv1D(32, kernel_size=7, activation='relu', padding='same')(inputs)
+    x = residual_block(x, 32, 7)
+    x = layers.MaxPooling1D(2)(x)
 
-        layers.Flatten(),
-        layers.Dense(64, activation='relu'),
-        layers.Dropout(0.5),
+    x = residual_block(x, 64, 5)
+    x = layers.MaxPooling1D(2)(x)
 
-        layers.Dense(n_classes, activation='softmax')
-    ])
+    x = residual_block(x, 128, 3)
+    x = layers.GlobalAveragePooling1D()(x)
+
+    x = layers.Dense(128, activation='relu')(x)
+    x = layers.Dropout(0.5)(x)
+
+    outputs = layers.Dense(n_classes, activation='softmax')(x)
+
+    model = keras.Model(inputs, outputs)
 
     model.compile(
         optimizer='adam',
         loss='sparse_categorical_crossentropy',
         metrics=['accuracy']
     )
-
     return model
+
 
 # ----------------------------
 # Early stopping callback
@@ -45,6 +90,15 @@ early_stop = keras.callbacks.EarlyStopping(
     patience=3,
     restore_best_weights=True
 )
+
+lr_scheduler = keras.callbacks.ReduceLROnPlateau(
+    monitor='val_loss',
+    factor=0.5,
+    patience=3,
+    min_lr=1e-6,
+    verbose=1
+)
+
 
 # ----------------------------
 # Prepare batch list
@@ -74,7 +128,7 @@ le.fit(y_sample)
 # Load or Create Model
 # ----------------------------
 
-model_path = "models/lead1_model_current.keras"
+model_path = "models/lead1_model_current1.keras"
 
 try:
     print(f"✅ Loading existing model from {model_path}")
@@ -104,10 +158,10 @@ for csv_path in batch_files:
     history = model.fit(
         X,
         y_encoded,
-        epochs=50,
+        epochs=100,
         batch_size=32,
         validation_split=0.2,
-        callbacks=[early_stop],
+        callbacks=[early_stop, lr_scheduler],
         verbose=1
     )
 

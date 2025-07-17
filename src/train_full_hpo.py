@@ -9,6 +9,7 @@ from sklearn.utils.class_weight import compute_class_weight
 from extract import load_dataset_from_csv
 import keras_tuner as kt
 import os
+from focal_loss import focal_loss_fixed
 
 # ----------------------------
 # Early stopping & LR schedule
@@ -136,7 +137,7 @@ def build_model(hp, n_classes):
     model = keras.Model(inputs, outputs)
     model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=lr),
-        loss='sparse_categorical_crossentropy',
+        loss=focal_loss_fixed,
         metrics=['accuracy']
     )
     return model
@@ -187,8 +188,8 @@ history = best_model.fit(
 # ----------------------------
 
 os.makedirs("models", exist_ok=True)
-best_model.save("models/lead1_model_full_hpo.keras")
-print("✅ Final model saved as models/lead1_model_full_hpo.keras")
+best_model.save("models/lead1_model_full_hpo_V3.keras")
+print("✅ Final model saved as models/lead1_model_full_hpo_V2.keras")
 
 # ----------------------------
 # STEP 11 - Evaluate on Test Set

@@ -12,7 +12,7 @@ from focal_loss import focal_loss_fixed
 # Load trained model - use comment load when using focal fucntion
 # ----------------------------
 
-model_path = "models/lead1_model_full_hpo_V3.keras" 
+model_path = "models/lead1_model_full_hpo_V4.keras" 
 
 print(f"✅ Loading model from {model_path}")
 

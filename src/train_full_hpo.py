@@ -111,6 +111,7 @@ def residual_block(x, filters, kernel_size):
 def build_model(hp, n_classes):
     inputs = keras.Input(shape=(1000, 1))
 
+    # Initial convolution
     filters_initial = hp.Int("filters_initial", 16, 128, step=16)
     x = layers.Conv1D(filters_initial, kernel_size=7, activation='relu', padding='same')(inputs)
 
@@ -123,6 +124,8 @@ def build_model(hp, n_classes):
         if hp.Boolean(f"pool_after_block_{i}"):
             x = layers.MaxPooling1D(2)(x)
 
+    # 🔁 Add BiLSTM to capture sequential dependencies
+    x = layers.Bidirectional(layers.LSTM(64, return_sequences=True))(x)
     x = layers.GlobalAveragePooling1D()(x)
 
     dense_units = hp.Int("dense_units", 32, 256, step=32)
@@ -141,6 +144,7 @@ def build_model(hp, n_classes):
         metrics=['accuracy']
     )
     return model
+
 
 # ----------------------------
 # STEP 8 - Run Hyperparameter Tuning
@@ -188,8 +192,8 @@ history = best_model.fit(
 # ----------------------------
 
 os.makedirs("models", exist_ok=True)
-best_model.save("models/lead1_model_full_hpo_V3.keras")
-print("✅ Final model saved as models/lead1_model_full_hpo_V2.keras")
+best_model.save("models/lead1_model_full_hpo_V4.keras")
+print("✅ Final model saved as models/lead1_model_full_hpo_V4.keras")
 
 # ----------------------------
 # STEP 11 - Evaluate on Test Set

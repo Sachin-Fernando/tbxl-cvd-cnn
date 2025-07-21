@@ -5,10 +5,10 @@ import ast
 import os
 
 # Paths
-PTBXL_DB_PATH = "../ptbxl-data/ptbxl_database.csv"
-SCP_STATEMENTS_PATH = "../ptbxl-data/scp_statements.csv"
-OUTPUT_TEST = "sample_ids_test.csv"
-OUTPUT_TRAIN = "all_batches.csv"
+PTBXL_DB_PATH = "../../ptbxl-data/ptbxl_database.csv"
+SCP_STATEMENTS_PATH = "../../ptbxl-data/scp_statements.csv"
+OUTPUT_TEST = "../data/sample_ids_test.csv"
+OUTPUT_TRAIN = "../data/all_batches.csv"
 
 # Load metadata
 df = pd.read_csv(PTBXL_DB_PATH)

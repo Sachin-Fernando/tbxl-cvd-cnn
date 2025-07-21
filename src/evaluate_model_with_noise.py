@@ -12,7 +12,7 @@ from focal_loss import focal_loss_fixed
 # Load trained model - use comment load when using focal fucntion
 # ----------------------------
 
-model_path = "models/lead1_model_full_hpo_V4.keras" 
+model_path = "models/lead1_model_full_hpo_V5.keras" 
 
 print(f"✅ Loading model from {model_path}")
 
@@ -28,7 +28,7 @@ model = tf.keras.models.load_model(
 # ----------------------------
 
 X_test, y_test = load_dataset_from_csv(
-    csv_path="sample_ids_test.csv",
+    csv_path="data/sample_ids_test.csv",
     base_path="../ptbxl-data/",
     augment=True,       # turn on noise here
     leads=[0]

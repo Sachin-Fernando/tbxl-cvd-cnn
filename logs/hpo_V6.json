@@ -1,0 +1,14 @@
+{
+    "filters_initial": 112,
+    "num_blocks": 3,
+    "filters_block_0": 128,
+    "pool_after_block_0": false,
+    "dense_units": 128,
+    "dropout": 0.4,
+    "learning_rate": 0.001,
+    "filters_block_1": 64,
+    "pool_after_block_1": true,
+    "filters_block_2": 128,
+    "pool_after_block_2": false,
+    "use_bilstm": true
+}

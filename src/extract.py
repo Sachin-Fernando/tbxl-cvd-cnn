@@ -39,7 +39,8 @@ def random_scaling(signal, min_factor=0.9, max_factor=1.1):
 
 def load_dataset_from_csv(
     csv_path="sample_ids.csv",
-    base_path="../ptbxl-data/records100/",
+    # base_path="../ptbxl-data/records100/",
+    base_path="../ptbxl-data/",
     augment=False,
     leads=[0]
 ):

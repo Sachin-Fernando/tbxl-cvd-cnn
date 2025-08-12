@@ -10,4 +10,5 @@ models/*.h5
 
 # Ignore virtual environments (if any)
 venv/
+.venv*
 .env/

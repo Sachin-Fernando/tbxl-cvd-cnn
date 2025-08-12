@@ -1,0 +1,8 @@
+tensorflow-macos==2.16.1
+tensorflow-metal
+keras-tuner
+scikit-learn
+pandas
+numpy
+matplotlib
+coremltools==7.1

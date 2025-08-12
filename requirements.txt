@@ -1,0 +1,16 @@
+# Core dependencies
+tensorflow==2.15.0
+keras-tuner
+scikit-learn
+pandas
+numpy
+matplotlib
+
+# Core ML conversion
+coremltools==7.1
+
+# Optional: if you ever visualize ECG signals or confusion matrices
+seaborn
+
+# For reproducibility with your custom loss
+# Ensure focal_loss.py is in your project or install from a package if you have it

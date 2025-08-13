@@ -1,0 +1,82 @@
+name: Build and Deploy to Azure Container Apps
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+
+env:
+  AZURE_CONTAINER_REGISTRY: tbxlacr25233.azurecr.io
+  ACR_NAME: tbxlacr25233
+  IMAGE_NAME: tbxl
+  RESOURCE_GROUP: tbxl-rg
+  CONTAINER_APP: tbxl-api
+  CONTAINER_ENV: tbxl-env
+  LOCATION: uksouth
+  TARGET_PORT: 8080
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1️⃣ Azure login
+      - name: Azure CLI login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 2️⃣ Log in to ACR
+      - name: Azure Container Registry login
+        run: az acr login --name ${{ env.ACR_NAME }}
+
+      # 3️⃣ Build for linux/amd64 and push to ACR
+      - name: Build and push Docker image
+        run: |
+          docker buildx create --use
+          docker buildx build \
+            --platform linux/amd64 \
+            -t ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            --push .
+
+      # 4️⃣ Create Container App Environment if not exists
+      - name: Ensure Container Apps Environment exists
+        run: |
+          if ! az containerapp env show -n ${{ env.CONTAINER_ENV }} -g ${{ env.RESOURCE_GROUP }} &>/dev/null; then
+            az containerapp env create \
+              -n ${{ env.CONTAINER_ENV }} \
+              -g ${{ env.RESOURCE_GROUP }} \
+              -l ${{ env.LOCATION }}
+          else
+            echo "✅ Container App Environment exists"
+          fi
+
+      # 5️⃣ Create or update the Container App
+      - name: Create or update Container App
+        run: |
+          if ! az containerapp show -n ${{ env.CONTAINER_APP }} -g ${{ env.RESOURCE_GROUP }} &>/dev/null; then
+            az containerapp create \
+              -n ${{ env.CONTAINER_APP }} \
+              -g ${{ env.RESOURCE_GROUP }} \
+              --environment ${{ env.CONTAINER_ENV }} \
+              --image ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+              --ingress external --target-port ${{ env.TARGET_PORT }} \
+              --cpu 1.0 --memory 2Gi \
+              --min-replicas 0 --max-replicas 1 \
+              --secrets xapikey=${{ secrets.API_KEY }} \
+              --env-vars X_API_KEY=secretref:xapikey \
+              --registry-server ${{ env.AZURE_CONTAINER_REGISTRY }} \
+              --registry-username ${{ secrets.REGISTRY_USERNAME }} \
+              --registry-password ${{ secrets.REGISTRY_PASSWORD }}
+          else
+            az containerapp update \
+              -n ${{ env.CONTAINER_APP }} \
+              -g ${{ env.RESOURCE_GROUP }} \
+              --image ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+              --set-env-vars X_API_KEY=secretref:xapikey
+          fi

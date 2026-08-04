@@ -1,0 +1,9 @@
+services:
+  ecg-api:
+    build: .
+    image: ptbxl-ecg-api:local
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    environment:
+      MODEL_PATH: /service/models/lead1_model_full_hpo_V3.keras

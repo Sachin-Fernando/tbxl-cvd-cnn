@@ -1,13 +1,26 @@
-# Ignore dataset files
+# Raw dataset and local data mounts
 ptbxl-data/
 
-# Ignore Python cache
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
-# Ignore model weights (optional)
-models/*.h5
-
-# Ignore virtual environments (if any)
+# Environments and local configuration
+.venv/
 venv/
-.env/
+.env
+.env.*
+!.env.example
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+
+# Optional legacy HDF5 exports
+models/*.h5

@@ -1,0 +1,29 @@
+{
+  "model_name": "ptbxl-lead1-cnn",
+  "model_version": "V3",
+  "artifact": "models/lead1_model_full_hpo_V3.keras",
+  "framework": "Keras",
+  "task": "three-class ECG diagnostic-superclass classification",
+  "input": {
+    "lead": "I",
+    "samples": 1000,
+    "sampling_rate_hz": 100,
+    "shape": [1000, 1]
+  },
+  "preprocessing": {
+    "normalization": "per-record z-score",
+    "epsilon": 1e-8
+  },
+  "classes": ["MI", "NORM", "STTC"],
+  "class_descriptions": {
+    "MI": "myocardial infarction superclass",
+    "NORM": "normal ECG superclass",
+    "STTC": "ST/T change superclass"
+  },
+  "evaluation": {
+    "accuracy": 0.7054,
+    "artifact": "evaluation_outputs/lead1_model_full_hpo_V3_accuracy.txt",
+    "note": "Repository-recorded result; the existing evaluation script applies stochastic noise augmentation."
+  },
+  "intended_use": "Research and portfolio demonstration only; not for clinical use."
+}
